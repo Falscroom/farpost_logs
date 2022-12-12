@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+use Log\Kernel;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$kernel = new Kernel();
+$builder = $kernel->prepareContainerBuilder();
+
+$application = new Application();
+$commands = $builder->findTaggedServiceIds('app.command');
+
+foreach ($commands as $serviceName => $tags) {
+    if ($builder->has($serviceName)) {
+        /** @var Command $command */
+        $command = $builder->get($serviceName);
+        $application->add($command);
+    }
+}
+
+$application->run();
